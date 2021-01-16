@@ -1,0 +1,45 @@
+name: eclipse
+base: core18
+
+version: '2020-09'
+summary: Extensible Tool Platform and Java IDE
+description:
+  Eclipse provides IDEs and platforms for nearly every language and architecture.
+  We are famous for our Java IDE, C/C++, JavaScript and PHP IDEs built on extensible
+  platforms for creating desktop, Web and cloud IDEs. These platforms deliver the most
+  extensive collection of add-on tools available for software developers.
+
+grade: stable
+confinement: classic
+
+architectures:
+  - build-on: amd64
+
+apps:
+  eclipse:
+    command: eclipse -configuration ${SNAP_USER_DATA}/${SNAP_ARCH}/configuration
+
+parts:
+  eclipse:
+    plugin: dump
+    source: http://ftp.halifax.rwth-aachen.de/eclipse/technology/epp/downloads/release/$SNAPCRAFT_PROJECT_VERSION/R/eclipse-java-$SNAPCRAFT_PROJECT_VERSION-R-linux-gtk-x86_64.tar.gz
+    source-checksum: "sha512/38b063a4df5a0ae6d22f82fb1c64281e462ef8b4de6e4cc970d47e89575c447376550ebc8063b8bcf2c6532ac7a276fe9d4c79f140846357c4218899f9d93bf3"
+    override-build: |
+      snapcraftctl build
+      # Add these missing libraries to DT_NEEDED
+      patchelf \
+        --add-needed libffi.so.6 \
+        --add-needed libgdk_pixbuf-2.0.so.0 \
+        --add-needed libgio-2.0.so.0 \
+        --add-needed libglib-2.0.so.0 \
+        --add-needed libgmodule-2.0.so.0 \
+        --add-needed libgobject-2.0.so.0 \
+        --add-needed libsecret-1.so.0 \
+        eclipse
+    build-packages:
+      - patchelf
+    stage-packages:
+      - libffi6
+      - libgdk-pixbuf2.0-0
+      - libglib2.0-0
+      - libsecret-1-0

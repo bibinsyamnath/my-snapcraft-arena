@@ -1,0 +1,66 @@
+name: atom
+adopt-info: atom
+summary: A hackable text editor for the 21st Century.
+description: |
+  Atom is a free and open source text editor that is modern,
+  approachable, and hackable to the core.
+base: core20
+
+grade: stable
+confinement: classic
+
+architectures:
+  - build-on: amd64
+
+parts:
+  atom:
+    plugin: dump
+    source: https://atom.io/download/deb
+    source-type: deb
+    override-build: |
+      DEB_API="https://atom.io/download/deb"
+      DEB_URL=$(curl -w "%{url_effective}\n" -I -L -s -S "${DEB_API}" -o /dev/null)
+      VERSION=$(echo "${DEB_URL}" | cut -d'/' -f4 | tr -d 'v')
+      echo $VERSION > $SNAPCRAFT_STAGE/version
+      snapcraftctl build
+      sed -i 's|Icon=atom|Icon=${SNAP}/usr/share/pixmaps/atom\.png|g' $SNAPCRAFT_PART_INSTALL/usr/share/applications/atom.desktop
+      snapcraftctl set-version "$(cat $SNAPCRAFT_STAGE/version)"
+    prime:
+      - -usr/share/atom/chrome-sandbox
+    build-packages:
+      - curl
+    stage-packages:
+      - fcitx-frontend-gtk3
+      - libappindicator3-1
+      - libasound2
+      - libcurl4
+      - libgconf-2-4
+      - libgtk-3-0
+      - libnotify4
+      - libnspr4
+      - libnss3
+      - libpcre3
+      - libpulse0
+      - libxss1
+      - libsecret-1-0
+      - libxtst6
+      - libxkbfile1
+  launcher:
+    plugin: dump
+    source: files/
+    override-build: |
+      snapcraftctl build
+      chmod +x $SNAPCRAFT_PART_INSTALL/bin/launcher
+
+apps:
+  atom:
+    command-chain: 
+      - bin/launcher
+    command: usr/share/atom/atom
+    environment:
+      # Fallback to XWayland if running in a Wayland session.
+      DISABLE_WAYLAND: 1
+  apm:
+    command-chain: 
+      - bin/launcher
+    command: usr/bin/apm

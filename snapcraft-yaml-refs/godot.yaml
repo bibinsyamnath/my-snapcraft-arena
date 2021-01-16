@@ -1,0 +1,64 @@
+name: godot
+base: core20
+version: '3.2.3'
+summary: Single-line elevator pitch for your amazing snap
+description: |
+  This is my-snap's description. You have a paragraph or two to tell the
+  most important story about your snap. Keep it under 100 words though,
+  we live in tweetspace and your description wants to look good in the snap
+  store.
+
+grade: devel
+confinement: devmode
+
+parts:
+  godot:
+    source: https://downloads.tuxfamily.org/godotengine/3.2.3/Godot_v3.2.3-stable_x11.64.zip
+    plugin: dump
+    stage-packages:
+      - libxcursor1
+      - libxi6
+      - libxinerama1
+      - libxrandr2
+      - libxrender1
+      - libxkbcommon0
+      - libglu1-mesa
+      - libasound2
+      - libasound2-plugins
+      - libogg0
+      - libpulse0
+      - libx11-6
+      - libgl1-mesa-dri
+      - libgl1-mesa-glx
+      - libgles2
+      - libgle3
+
+layout:
+  /usr/share/alsa:
+    bind: $SNAP/usr/share/alsa
+  /usr/share/X11:
+    bind: $SNAP/usr/share/X11
+  /etc/alsa/conf.d:
+    bind: $SNAP/etc/alsa/conf.d
+
+apps:
+  godot:
+    plugs:
+      - alsa
+      - audio-playback
+      - desktop
+      - desktop-legacy
+      - home
+      - x11
+      - unity7
+      - browser-support
+      - network
+      - gsettings
+      - pulseaudio
+      - opengl
+
+    command: Godot_v3.2.3-stable_x11.64
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/mesa:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/mesa-gl:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/xorg:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio/
+      LIBGL_DRIVERS_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+      DISABLE_WAYLAND: 1
